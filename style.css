@@ -38,3 +38,14 @@ canvas {
       0 0 30px #ffdd87, 0 0 40px #ffdd87, 0 0 50px #f8c471;
   }
 }
+@media only screen and (max-width: 414px) {
+  .overlay-text {
+    font-size: 0.8rem; /* Giảm kích thước font cho màn hình nhỏ */
+    right: 5%; /* Điều chỉnh vị trí text */
+  }
+
+  canvas {
+    width: 100vw; /* Điều chỉnh kích thước canvas */
+    height: 100vh;
+  }
+}

@@ -1,69 +1,111 @@
-// Scene, Camera, Renderer Setup
+// Scene setup
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
+let clock = new THREE.Clock(); // Tạo đồng hồ để theo dõi thời gian
+let isAnimating = true; // Biến điều khiển trạng thái animation
+
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5, 10, 7.5);
+scene.add(light);
+
+const ambientLight = new THREE.AmbientLight(0x404040); // Soft ambient light
 scene.add(ambientLight);
-const pointLight = new THREE.PointLight(0xffaaff, 1.5, 100);
-pointLight.position.set(5, 10, 5);
-scene.add(pointLight);
 
-// Function to create a flower
-function createFlower() {
-    const flowerGeometry = new THREE.ConeGeometry(0.5, 1, 8); // Petal shape
-    const flowerMaterial = new THREE.MeshStandardMaterial({ color: 0xff69b4 });
-    const flower = new THREE.Mesh(flowerGeometry, flowerMaterial);
-    flower.rotation.x = Math.PI / 2;
-    flower.scale.set(0.5, 0.5, 0.5); // Initial scale
-    return flower;
-}
+// Load GLTF/GLB Model of the rose
+const loader = new THREE.GLTFLoader();
+function addRose(position,url,isAnimating=true) {
+  loader.load(
+    url,
+    function (gltf) {
+      const rose = gltf.scene;
 
-// Create multiple flowers
-const flowers = [];
-for (let i = 0; i < 10; i++) {
-    const flower = createFlower();
-    flower.position.set(
-        (Math.random() - 0.5) * 10, // Random x position
-        (Math.random() - 0.5) * 10, // Random y position
-        (Math.random() - 0.5) * 10  // Random z position
-    );
-    flowers.push(flower);
-    scene.add(flower);
-}
+      rose.position.copy(position); // Set position
+      rose.scale.set(50, 50, 50); // Adjust scale for better visibility
+      scene.add(rose);
 
-// Blooming Animation
-function animate() {
-    requestAnimationFrame(animate);
-
-    flowers.forEach(flower => {
-        // Bloom effect - increase the scale
-        if (flower.scale.x < 1) {
-            flower.scale.x += 0.01;
-            flower.scale.y += 0.01;
-            flower.scale.z += 0.01;
+      // Animation: Rotate the rose slowly
+      function animateRose() {
+        requestAnimationFrame(animateRose);
+        if (isAnimating) {
+          let time = clock.getElapsedTime();
+          rose.rotation.y += 0.003;
+          rose.position.y = Math.sin(time) * 0.1;
+          light.color.setHSL(Math.sin(time * 0.5), 0.5, 0.5);
         }
-
-        // Add some slight rotation and shimmer to the flower
-        flower.rotation.z += 0.01;
-    });
-
-    pointLight.intensity = 1.5 + Math.sin(Date.now() * 0.005) * 0.5;
-
-    renderer.render(scene, camera);
+      }
+      animateRose();
+    },
+    undefined,
+    function (error) {
+      console.error(error);
+    }
+  );
 }
 
-camera.position.z = 15;
-animate();
+// Add 3 roses at different positions
+// Hoa thứ nhất - Ở vị trí cao nhất
 
-// Handle Window Resize
-window.addEventListener('resize', function() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    renderer.setSize(width, height);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
+addRose(new THREE.Vector3(0, 30, 0),"path/rose_model.glb"); // Trục Y = 5 để lên trên
+
+// Hoa thứ hai - Ở giữa
+addRose(new THREE.Vector3(-5, -70, 0),"path/Roses.glb",false); // Trục Y = 0 ở giữa
+
+// Hoa thứ ba - Ở vị trí thấp nhất
+// addRose(new THREE.Vector3(0, -5, 0),"path/roses_bottom.glb"); // Trục Y = -5 để xuống dưới
+
+// Camera positioning
+// camera.position.set(0, 0, 20); // Set camera position
+camera.position.set(0, 0, 15); // Đẩy camera ra xa một chút để phù hợp với màn hình nhỏ
+
+// Handle window resize
+window.addEventListener("resize", () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 });
+
+// Add particle effects
+const particleGeometry = new THREE.BufferGeometry();
+const particleCount = 5000;
+const positions = [];
+
+for (let i = 0; i < particleCount; i++) {
+  const x = (Math.random() - 0.5) * 50;
+  const y = (Math.random() - 0.5) * 50;
+  const z = (Math.random() - 0.5) * 50;
+  positions.push(x, y, z);
+}
+
+particleGeometry.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(positions, 3)
+);
+
+const particleMaterial = new THREE.PointsMaterial({
+  color: 0xffffff,
+  size: 0.05,
+  transparent: true,
+  opacity: 0.8,
+});
+
+const particles = new THREE.Points(particleGeometry, particleMaterial);
+scene.add(particles);
+
+// Render loop
+function render() {
+  requestAnimationFrame(render);
+  renderer.render(scene, camera);
+}
+render();
+
+toggleButton.innerText = isAnimating ? "Stop Rotation" : "Start Rotation";
