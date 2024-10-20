@@ -1,6 +1,40 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #000;
-    color: white;
-    overflow: hidden;
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: #111;
+}
+canvas {
+  display: block;
+}
+.overlay-text {
+  position: absolute;
+  top: 50%;
+  right: 10%; /* Positioning to the right */
+  transform: translateY(-50%); /* Center vertically */
+  color: #f8c471; /* Set text color */
+  font-size: 1rem; /* Adjust font size for better visibility */
+  text-align: center;
+  z-index: 10;
+  animation: sparkle 3s infinite;
+  color: #f8c471; /* Màu chính của chữ */
+  font-family: "Dancing Script", cursive; /* Font chữ mềm mại */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes sparkle {
+  0% {
+    text-shadow: 0 0 5px #f8c471, 0 0 10px #f8c471, 0 0 20px #ffef82,
+      0 0 30px #ffdd87, 0 0 40px #ffdd87, 0 0 50px #f8c471;
+  }
+  50% {
+    text-shadow: 0 0 5px #ffef82, 0 0 10px #ffef82, 0 0 20px #ffdd87,
+      0 0 30px #f8c471, 0 0 40px #f8c471, 0 0 50px #ffef82;
+  }
+  100% {
+    text-shadow: 0 0 5px #f8c471, 0 0 10px #f8c471, 0 0 20px #ffef82,
+      0 0 30px #ffdd87, 0 0 40px #ffdd87, 0 0 50px #f8c471;
+  }
 }
