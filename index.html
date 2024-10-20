@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic Rose Bloom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet"> <!-- Add Google Font -->
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: #111;
+        }
+        canvas {
+            display: block;
+        }
+        .overlay-text {
+            position: absolute;
+            top: 50%;
+            right: 10%; /* Positioning to the right */
+            transform: translateY(-50%); /* Center vertically */
+            color: #f8c471; /* Set text color */
+            font-size: 0.5rem; /* Adjust font size for better visibility */
+            text-align: center;
+            z-index: 10;
+            font-family: 'Dancing Script', cursive; /* Use Google Font */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add shadow for better visibility */
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay-text">
+        <p>Trâm ơi, ngày đặc biệt đã đến,<br>
+        Chúc em vui vẻ, trái tim rực rỡ.<br>
+        Mỗi khoảnh khắc, hạnh phúc ngập tràn,<br>
+        Không ngừng tỏa sáng, như ngàn hoa nở.</p>
+        <p>Nụ cười em là ánh sáng diệu kỳ,<br>
+        Mang đến niềm vui, xua tan u ám.<br>
+        Dù bão giông, hay những đêm tĩnh lặng,<br>
+        Hãy luôn tin rằng, em là ánh sao.</p>
+        <p>Cuộc sống này, như dòng sông rộng lớn,<br>
+        Chúng ta cùng nhau, vững bước tiến lên.<br>
+        Em hãy sống, yêu thương thật trọn vẹn,<br>
+        Và tỏa sáng, như ánh mặt trời lên!</p>
+    </div>
+
+    <!-- Audio autoplay -->
+    <audio id="background-music" autoplay loop muted>
+        <source src="https://www.bensound.com/bensound-music/bensound-lovely.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 10, 7.5);
+        scene.add(light);
+
+        const ambientLight = new THREE.AmbientLight(0x404040); // Soft ambient light
+        scene.add(ambientLight);
+
+        // Load GLTF/GLB Model of the rose
+        const loader = new THREE.GLTFLoader();
+        loader.load('path/rose_model.glb', function(gltf) {
+            const rose = gltf.scene;
+            rose.position.set(-1, -3, 1); // Adjust position to center
+            rose.scale.set(20, 20, 20); // Adjust scale for better visibility
+            scene.add(rose);
+
+            // Animation: Rotate the rose slowly
+            function animate() {
+                requestAnimationFrame(animate);
+                rose.rotation.y += 0.005; // Rotate rose
+                renderer.render(scene, camera);
+            }
+            animate();
+        }, undefined, function(error) {
+            console.error(error);
+        });
+
+        // Camera positioning
+        camera.position.set(0, 0, 10); // Set camera position
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>
